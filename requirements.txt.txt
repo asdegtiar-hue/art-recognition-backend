@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+torch
+clip-by-openai
+requests
+numpy
+scikit-learn
+Pillow
