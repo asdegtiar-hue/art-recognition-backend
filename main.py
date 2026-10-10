@@ -18,29 +18,27 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-# ============================================================
-# 1. ЗАГРУЗКА МОДЕЛИ CLIP
-# ============================================================
+
+# ЗАГРУЗКА МОДЕЛИ CLIP
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 model.eval()
 
-print(f"✅ CLIP загружен на {device}")
+print(f"CLIP загружен на {device}")
 
-# ============================================================
-# 2. ЗАГРУЗКА ЭМБЕДДИНГОВ
-# ============================================================
+# ЗАГРУЗКА ЭМБЕДДИНГОВ
+
 reference_embeddings = np.load("embeddings.npy")
 
 with open("paths.json", "r", encoding="utf-8") as f:
     ref_paths = json.load(f)
 
-print(f"✅ Эмбеддингов: {reference_embeddings.shape}")
-print(f"✅ Имён картин: {len(ref_paths)}")
+print(f"Эмбеддингов: {reference_embeddings.shape}")
+print(f"Имён картин: {len(ref_paths)}")
 
-# ============================================================
-# 3. РАСПОЗНАВАНИЕ
-# ============================================================
+# РАСПОЗНАВАНИЕ
+
 def recognize_painting(image_path):
     try:
         image = preprocess(Image.open(image_path)).unsqueeze(0).to(device)
@@ -54,12 +52,12 @@ def recognize_painting(image_path):
 
         return ref_paths[best_idx], similarities[best_idx]
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
+        print(f"Ошибка: {e}")
         return None, 0.0
 
-# ============================================================
-# 4. ВИКИПЕДИЯ
-# ============================================================
+
+# ВИКИПЕДИЯ
+
 def search_wikipedia(query, lang="ru"):
     url = f"https://{lang}.wikipedia.org/w/api.php"
     params = {"action": "query", "list": "search", "srsearch": query, "format": "json", "srlimit": 1}
@@ -158,9 +156,8 @@ def get_facts_about_painting(pred_filename):
 
     return {"source": None, "message": "Информация не найдена"}
 
-# ============================================================
-# 5. СОЗДАНИЕ API
-# ============================================================
+# СОЗДАНИЕ API
+
 app = FastAPI(title="Art Recognition API")
 app.add_middleware(
     CORSMiddleware,
